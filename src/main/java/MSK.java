@@ -1,4 +1,6 @@
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MSK {
 
@@ -23,7 +25,7 @@ public class MSK {
         return customerId;
     }
 
-    public static String selectTitle(String customerId) {
+    public static List selectTitle(String customerId) {
         String query = "select hg.objid, hg.title\n" +
                 "from table_customer tc\n" +
                 "join table_hgbst_elm hg\n" +
@@ -41,34 +43,14 @@ public class MSK {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-return title;
+        List<String> list = new ArrayList<>();
+        list.add(hgId);
+        list.add(title);
+        return list;
     }
 
-    public static int selectHgId(int customerId) {
-        String query = "select hg.objid\n" +
-                "from table_customer tc\n" +
-                "join table_hgbst_elm hg\n" +
-                "on tc.x_propensity_drain2hgbst_elm = hg.objid\n" +
-                "where tc.s_customer_id = '" + customerId + "'";
-        int hgId = 1;
-        try (Connection con = getConnection();
-             PreparedStatement statement = con.prepareStatement(query);
-             ResultSet result = statement.executeQuery()) {
-            while (result.next()) {
-                hgId = result.getInt(1);
-            }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        return hgId;
-    }
 
-    public static void updatePropensityDrain(int customerId) {
-        int nextDrain = selectHgId(customerId);
-        if (selectHgId(customerId) == 5911)
-            nextDrain = 5912;
-        else if (selectHgId(customerId) == 5912)
-            nextDrain = 5911;
+    public static void updatePropensityDrain(String customerId, String nextDrain) {
         String query = "update table_customer\n" +
                 "   set x_propensity_drain2hgbst_elm = '" + nextDrain + "'\n" +
                 " where s_customer_id = '" + customerId + "'";
